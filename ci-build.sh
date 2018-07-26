@@ -30,18 +30,16 @@ message 'Building packages' "${packages[@]}"
 execute 'Updating system' update_system
 
 # Decrypt and import private sigature key
-deploy_enabled && (gpg --passphrase $GPGPASSWD --decrypt appveyor-key.asc.asc | gpg --import)
+deploy_enabled && (gpg --batch --passphrase $GPGPASSWD --decrypt appveyor-key.asc.asc | gpg --import)
 execute 'Add [ci.ri2] respository' add_ci_ri2_repo
 
 # Build
 execute 'Approving recipe quality' check_recipe_quality
 for package in "${packages[@]}"; do
     execute 'Building binary' makepkg-mingw --noconfirm --skippgpcheck --nocheck --syncdeps --rmdeps --cleanbuild --sign
-    execute 'Building source' makepkg --noconfirm --skippgpcheck --allsource --config '/etc/makepkg_mingw64.conf' --sign
     execute 'Installing' yes:pacman --upgrade *.pkg.tar.xz
     execute 'Uninstalling' yes:pacman --remove --recursive --cascade --noconfirm "${package/mingw-w64/mingw-w64-i686}" "${package/mingw-w64/mingw-w64-x86_64}"
     deploy_enabled && mv "${package}"/*.pkg.tar.xz* artifacts
-    deploy_enabled && mv "${package}"/*.src.tar.gz* artifacts
     deploy_enabled && drop_old_bintray_versions "${package}"
     unset package
 done
