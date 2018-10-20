@@ -3,8 +3,9 @@ init:
   # We use a clean PATH to avoid interferences with the hundreds of installed programs.
   - set PATH=c:/Ruby24-x64/bin;c:/Program Files/Git/cmd;c:/Windows/system32
   - dir c:\windows\system32\l*.dll
+  - c:\windows\syswow64\cmd.exe /c "dir c:\windows\system32\l*.dll"
   - del c:\windows\system32\libcrypto-1_1-x64.dll c:\windows\system32\libssl-1_1-x64.dll
-  - del c:\windows\system32\libcrypto-1_1.dll c:\windows\system32\libssl-1_1.dll
+  - c:\windows\syswow64\cmd.exe /c "del c:\windows\system32\libcrypto-1_1.dll c:\windows\system32\libssl-1_1.dll"
 
 environment:
     DEPLOY_PROVIDER: bintray
