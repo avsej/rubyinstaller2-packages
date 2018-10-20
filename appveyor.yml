@@ -1,5 +1,8 @@
 init:
   - echo %PATH%
+  # We use a clean PATH to avoid interferences with the hundreds of installed programs.
+  - set PATH=c:/Ruby24-x64/bin;c:/Program Files/Git/cmd;c:/Windows/system32
+  - del c:\windows\system32\libcrypto-1_1-x64.dll c:\windows\system32\libssl-1_1-x64.dll
 
 environment:
     DEPLOY_PROVIDER: bintray
@@ -14,7 +17,6 @@ environment:
         secure: yaAnKXWjX6uB9WwCZ4ZQm/R0bCvyribyGYEoTu/kw+F6v8CgJ26n8+u9C6cnuBIN
 
 build_script:
-    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
     - C:\msys64\usr\bin\pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade
     - C:\msys64\usr\bin\bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/ci-build.sh"
 
@@ -31,6 +33,3 @@ deploy:
       publish: true
       override: true
       api_key: $(BINTRAY_API_KEY)
-
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
