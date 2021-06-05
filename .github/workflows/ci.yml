@@ -28,6 +28,8 @@ jobs:
       with:
         ruby-version: "3.0"
 
+    - run: bundle install
+
     - name: Update MSYS2
       shell: cmd
       run: C:\msys64\usr\bin\pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade
