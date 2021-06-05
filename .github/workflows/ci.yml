@@ -1,0 +1,52 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build-package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - MINGW_ARCH: "mingw32"
+        - MINGW_ARCH: "mingw64"
+        - MINGW_ARCH: "ucrt64"
+        
+    runs-on: windows-latest
+    env:
+      MINGW_ARCH: ${{ matrix.MINGW_ARCH }}
+
+    steps:
+    - name: configure git crlf
+      run: |
+        git config --system core.autocrlf false
+        git config --system core.eol lf
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "3.0"
+
+    - name: Update MSYS2
+      shell: cmd
+      run: C:\msys64\usr\bin\pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade
+
+    - name: Kill all running msys2 binaries to avoid error "size of shared memory region changed".
+      shell: powershell
+      # See https://github.com/msys2/MSYS2-packages/issues/258
+      run: Get-Process | Where-Object {$_.path -like 'C:\msys64*'} | Stop-Process
+
+    - name: Build packages
+      shell: cmd
+      env:
+        GPGPASSWD: ${{ secrets.GPGPASSWD }}
+      run: C:\msys64\usr\bin\bash --login -c "$(cygpath ${GITHUB_WORKSPACE})/ci-build.sh"
+
+    - name: Build packages
+      shell: cmd
+      env:
+        DEPLOY_REPO_NAME: oneclick/rubyinstaller2-packages
+        DEPLOY_TAG: ci.ri2
+        DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+      run: rake upload -- artifacts\*

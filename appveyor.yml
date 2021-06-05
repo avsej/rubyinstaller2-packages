@@ -12,16 +12,12 @@ init:
   - c:\windows\syswow64\cmd.exe /c "del c:\windows\system32\libcrypto-1_1.dll c:\windows\system32\libssl-1_1.dll"
 
 environment:
-    DEPLOY_PROVIDER: bintray
-    BINTRAY_ACCOUNT: larskanis
-    BINTRAY_REPOSITORY: rubyinstaller2-packages
-    BINTRAY_VERSION: latest
     PACMAN_REPOSITORY_NAME: ci.ri2
     BUILD_URL: https://ci.appveyor.com/project/$(APPVEYOR_ACCOUNT_NAME)/$(APPVEYOR_PROJECT_NAME)/build/$(APPVEYOR_BUILD_VERSION)
     GPGPASSWD:
-        secure: /DELcKSZC+R4HdXgsqR1RtC+IrDZ3Xut/vzV/KgepE3M8OsjJtmWutN0+Jvc2Iv2
-    BINTRAY_API_KEY:
-        secure: yaAnKXWjX6uB9WwCZ4ZQm/R0bCvyribyGYEoTu/kw+F6v8CgJ26n8+u9C6cnuBIN
+        secure: yN0RCzYFBuE4Y2mxfOrkn/IV9pisw4wXb6X4RdG4ZnOyVsi5yC7hFtiUu8i9YFlj
+    DEPLOY_TOKEN:
+        secure: /XnAP8uTsFB60NFjTnHcPUKSjR6VsGWXhRNlWox7cS4MEBzsgl6cOz/qym2vsZLC
 
 build_script:
     # Update keyring according to https://www.msys2.org/news/#2020-06-29-new-packagers
@@ -38,16 +34,5 @@ build_script:
     - powershell -Command "Get-Process | Where-Object {$_.path -like 'C:\msys64*'} | Stop-Process"
     - C:\msys64\usr\bin\bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/ci-build.sh"
 
-artifacts:
-    - path: artifacts\*
-
-deploy:
-    - provider: BinTray
-      username: $(BINTRAY_ACCOUNT)
-      subject: $(BINTRAY_ACCOUNT)
-      repo: $(BINTRAY_REPOSITORY)
-      package: $(PACMAN_REPOSITORY_NAME)
-      version: latest
-      publish: true
-      override: true
-      api_key: $(BINTRAY_API_KEY)
+    # Upload packages and pacman database to repository release files
+    - rake upload -- artifacts\*
