@@ -46,6 +46,6 @@ done
 
 # Deploy
 deploy_enabled && cd artifacts || success 'All packages built successfully'
-execute 'Generating pacman repository' create_pacman_repository "${PACMAN_REPOSITORY_NAME:-ci-build}"
+execute 'Generating pacman repository' create_pacman_repository "ci.ri2"
 execute 'SHA-256 checksums' sha256sum *
 success 'All artifacts built successfully'

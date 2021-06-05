@@ -45,7 +45,7 @@ jobs:
         GPGPASSWD: ${{ secrets.GPGPASSWD }}
       run: C:\msys64\usr\bin\bash --login -c "$(cygpath ${GITHUB_WORKSPACE})/ci-build.sh"
 
-    - name: Build packages
+    - name: Upload packages
       shell: cmd
       env:
         DEPLOY_REPO_NAME: oneclick/rubyinstaller2-packages
