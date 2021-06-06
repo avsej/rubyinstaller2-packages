@@ -73,4 +73,3 @@ package() {
       ${pkgdir}${MINGW_PREFIX}/bin/
   done
 }
-
