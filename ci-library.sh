@@ -218,6 +218,7 @@ add_ci_ri2_repo() {
     gpg --export BE8BF1C5 | pacman-key --add -
     pacman-key --lsign-key BE8BF1C5
 
+    pacman --noconfirm --sync --needed pactoys
     repman add ci.ri2 'https://github.com/oneclick/rubyinstaller2-packages/releases/download/ci.ri2'
 
     # Download [ci.ri2] package list
