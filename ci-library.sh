@@ -126,11 +126,6 @@ execute(){
     cd - > /dev/null
 }
 
-# Update system
-update_system() {
-    pacman --noconfirm --sync --refresh --refresh --sysupgrade --sysupgrade || return 1
-}
-
 # Sort packages by dependency
 define_build_order() {
     local sorted_packages=()

@@ -27,8 +27,6 @@ fi
 define_build_order || failure 'Could not determine build order'
 message 'Building packages' "${packages[@]}"
 
-# execute 'Updating system' update_system
-
 # Decrypt and import private sigature key
 deploy_enabled && (gpg --batch --passphrase $GPGPASSWD --decrypt appveyor-key.asc.asc | gpg --import)
 execute 'Add [ci.ri2] respository to pacman.conf' add_ci_ri2_repo
