@@ -37,13 +37,10 @@ for package in "${packages[@]}"; do
     execute 'Building binary' makepkg-mingw --noconfirm --skippgpcheck --nocheck --syncdeps --rmdeps --cleanbuild --sign
 #     execute 'Installing' yes:pacman --upgrade *.pkg.tar.zst
 #     execute 'Uninstalling' yes:pacman --remove --recursive --cascade --noconfirm "${package/mingw-w64/mingw-w64-i686}" "${package/mingw-w64/mingw-w64-x86_64}" "${package/mingw-w64/mingw-w64-ucrt-x86_64}"
-    deploy_enabled && mv "${package}"/*.pkg.tar.zst* artifacts
+    deploy_enabled && mv "${package}"/*.pkg.tar.zst "${package}"/*.pkg.tar.zst.sig artifacts
 #     deploy_enabled && drop_old_bintray_versions "${package}"
     unset package
 done
 
 # Deploy
-deploy_enabled && cd artifacts || success 'All packages built successfully'
-execute 'Generating pacman repository' create_pacman_repository "ci.ri2"
-execute 'SHA-256 checksums' sha256sum *
-success 'All artifacts built successfully'
+success 'All packages built successfully'

@@ -49,6 +49,13 @@ jobs:
         GPGPASSWD: ${{ secrets.GPGPASSWD }}
       run: C:\msys64\usr\bin\bash --login -c "$(cygpath ${GITHUB_WORKSPACE})/ci-build.sh"
 
+    - name: Download package database
+      shell: cmd
+      env:
+        GPGPASSWD: ${{ secrets.GPGPASSWD }}
+      run: |
+        ridk exec bash -c "source 'ci-library.sh'; deploy_enabled && cd artifacts && create_pacman_repository 'ci.ri2'"
+
     - name: Upload packages
       shell: cmd
       env:
