@@ -1,5 +1,10 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron:  '30 1 * * *'
+
 jobs:
   build-package:
     strategy:
@@ -9,7 +14,7 @@ jobs:
         - MINGW_ARCH: "mingw32"
         - MINGW_ARCH: "mingw64"
         - MINGW_ARCH: "ucrt64"
-        
+
     runs-on: windows-latest
     env:
       MINGW_ARCH: ${{ matrix.MINGW_ARCH }}
