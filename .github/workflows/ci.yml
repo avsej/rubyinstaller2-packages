@@ -62,4 +62,4 @@ jobs:
         DEPLOY_REPO_NAME: oneclick/rubyinstaller2-packages
         DEPLOY_TAG: ci.ri2
         DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-      run: rake upload -- artifacts\*
+      run: rake upload -- artifacts/*.pkg.tar.zst artifacts/*.pkg.tar.zst.sig artifacts/*.db.tar.zst artifacts/*.db.tar.zst.sig artifacts/*.files.tar.zst artifacts/*.files.tar.zst.sig
