@@ -1,7 +1,7 @@
 CONTENT_TYPE_FOR_EXT = {
   ".sig" => "application/pgp-signature",
-  ".db" => "application/zip",
-  ".files" => "application/zip",
+  ".db" => "application/zstd",
+  ".files" => "application/zstd",
   ".zst" => "application/zstd",
 }
 
