@@ -40,7 +40,8 @@ jobs:
     - name: Remove troublesome packages
       shell: powershell
       run: |
-        C:\msys64\usr\bin\pacman --noconfirm --remove ${Env:MINGW_PACKAGE_PREFIX}-dlfcn --cascade
+        ridk enable ${{ matrix.MINGW_ARCH }}
+        pacman --noconfirm --remove ${Env:MINGW_PACKAGE_PREFIX}-dlfcn --cascade
 
     - run: bundle install
 
