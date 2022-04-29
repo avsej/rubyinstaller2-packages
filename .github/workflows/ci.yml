@@ -1,6 +1,7 @@
 name: CI
 on:
   push:
+    branches: [ master ]
   pull_request:
   schedule:
   - cron:  '30 19 * * *'
@@ -11,15 +12,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - MINGW_ARCH: "mingw32"
         - MINGW_ARCH: "mingw64"
-        - MINGW_ARCH: "ucrt64"
+        #- MINGW_ARCH: "mingw32"
+        #- MINGW_ARCH: "ucrt64"
 
     runs-on: windows-latest
     env:
       MINGW_ARCH: ${{ matrix.MINGW_ARCH }}
       APPVEYOR_SCHEDULED_BUILD: ${{ github.event.schedule }}
-      DEPLOY_REPO_NAME: oneclick/rubyinstaller2-packages
+      DEPLOY_REPO_NAME: avsej/rubyinstaller2-packages
       DEPLOY_TAG: ci.ri2
       DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
@@ -67,20 +68,20 @@ jobs:
       shell: cmd
       run: rake upload:lock
 
-    - name: Download package database
-      shell: cmd
-      env:
-        GPGPASSWD: ${{ secrets.GPGPASSWD }}
-      run: |
-        ridk exec bash -c "source 'ci-library.sh'; deploy_enabled && cd artifacts && create_pacman_repository 'ci.ri2'"
+#   - name: Download package database
+#     shell: cmd
+#     env:
+#       GPGPASSWD: ${{ secrets.GPGPASSWD }}
+#     run: |
+#       ridk exec bash -c "source 'ci-library.sh'; deploy_enabled && cd artifacts && create_pacman_repository 'ci.ri2'"
 
     - name: Upload packages
       shell: cmd
       run: rake upload -- artifacts/*.pkg.tar.zst artifacts/*.pkg.tar.zst.sig artifacts/*.db.tar.zst artifacts/*.db.tar.zst.sig artifacts/*.db artifacts/*.db.sig artifacts/*.files.tar.zst artifacts/*.files.tar.zst.sig artifacts/*.files artifacts/*.files.sig
 
-    - name: Remove outdated packages from github releases
-      shell: cmd
-      run: rake upload:remove_old
+#   - name: Remove outdated packages from github releases
+#     shell: cmd
+#     run: rake upload:remove_old
 
     - name: Unlock package repository
       shell: cmd

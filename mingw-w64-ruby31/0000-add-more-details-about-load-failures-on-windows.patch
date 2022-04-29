@@ -1,0 +1,101 @@
+From d02a5ed320b4efaef2d3b5a0efd381865ae53c20 Mon Sep 17 00:00:00 2001
+From: Sergey Avseyev <sergey.avseyev@gmail.com>
+Date: Fri, 29 Apr 2022 17:37:48 +0300
+Subject: [PATCH] add more details about load failures on windows
+
+---
+ dln.c  | 7 +++++++
+ load.c | 4 ++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/dln.c b/dln.c
+index 44e8c06d04..8932fd683a 100644
+--- a/dln.c
++++ b/dln.c
+@@ -319,16 +319,19 @@ dln_load(const char *file)
+ 
+     /* Convert the file path to wide char */
+     winfile = rb_w32_mbstr_to_wstr(CP_UTF8, file, -1, NULL);
++        fprintf(stderr, "%s: rb_w32_mbstr_to_wstr(): %p\n", __func__, (void *)winfile);
+     if (!winfile) {
+ 	dln_memerror();
+     }
+ 
+     /* Load file */
+     handle = LoadLibraryW(winfile);
++        fprintf(stderr, "%s: LoadLibraryW(): %ld\n", __func__, (long)handle);
+     free(winfile);
+ 
+     if (!handle) {
+ 	error = dln_strerror();
++        fprintf(stderr, "%s: dln_strerror(): error=\"%s\"\n", __func__, error);
+ 	goto failed;
+     }
+ 
+@@ -336,16 +339,19 @@ dln_load(const char *file)
+     if (!rb_w32_check_imported(handle, rb_libruby_handle())) {
+ 	FreeLibrary(handle);
+ 	error = incompatible;
++        fprintf(stderr, "%s: rb_w32_check_imported(): error=\"%s\"\n", __func__, error);
+ 	goto failed;
+     }
+ #endif
+ 
+     if ((init_fct = (void(*)(void))GetProcAddress(handle, buf)) == NULL) {
++        fprintf(stderr, "%s: GetProcAddress(): init_fct=NULL, error=\"%s\"\n", __func__, dln_strerror());
+ 	dln_loaderror("%s - %s\n%s", dln_strerror(), buf, file);
+     }
+ 
+     /* Call the init code */
+     (*init_fct)();
++        fprintf(stderr, "%s: init_fct() called\n", __func__);
+     return handle;
+ #else
+     char *buf;
+@@ -495,6 +501,7 @@ dln_load(const char *file)
+ #endif
+ #if defined(_WIN32) || defined(USE_DLN_DLOPEN)
+   failed:
++        fprintf(stderr, "%s: %s - %s\n", __func__, error, file);
+     dln_loaderror("%s - %s", error, file);
+ #endif
+ 
+diff --git a/load.c b/load.c
+index 812fe2fe93..fac9f28b2e 100644
+--- a/load.c
++++ b/load.c
+@@ -1018,6 +1018,7 @@ static VALUE
+ load_ext(VALUE path)
+ {
+     rb_scope_visibility_set(METHOD_VISI_PUBLIC);
++        fprintf(stderr, "%s: dln_load(path=\"%s\")\n", __func__, RSTRING_PTR(path));
+     return (VALUE)dln_load(RSTRING_PTR(path));
+ }
+ 
+@@ -1112,6 +1113,7 @@ require_internal(rb_execution_context_t *ec, VALUE fname, int exception, bool wa
+ 
+ 	RUBY_DTRACE_HOOK(FIND_REQUIRE_ENTRY, RSTRING_PTR(fname));
+         found = search_required(th->vm, path, &saved_path, rb_feature_p);
++        fprintf(stderr, "%s: search_required(path=\"%s\"): found=%d\n", __func__, RSTRING_PTR(path), found);
+ 	RUBY_DTRACE_HOOK(FIND_REQUIRE_RETURN, RSTRING_PTR(fname));
+         path = saved_path;
+ 
+@@ -1137,6 +1139,7 @@ require_internal(rb_execution_context_t *ec, VALUE fname, int exception, bool wa
+                     ext_config_push(th, &prev_ext_config);
+ 		    handle = (long)rb_vm_call_cfunc(rb_vm_top_self(), load_ext,
+ 						    path, VM_BLOCK_HANDLER_NONE, path);
++        fprintf(stderr, "%s: rb_vm_call_cfunc(path=\"%s\"): handle=%ld\n", __func__, RSTRING_PTR(path), handle);
+ 		    rb_ary_push(ruby_dln_librefs, LONG2NUM(handle));
+ 		    break;
+ 		}
+@@ -1226,6 +1229,7 @@ rb_require_string(VALUE fname)
+         EC_JUMP_TAG(ec, result);
+     }
+     if (result < 0) {
++        fprintf(stderr, "%s: require_internal(fname=\"%s\", ruby_verbose=%d): result=%d\n", __func__, RSTRING_PTR(fname), result);
+ 	load_failed(fname);
+     }
+ 
+-- 
+2.35.1
+

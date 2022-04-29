@@ -60,9 +60,9 @@ namespace "upload" do
             client.upload_asset(release.url, fname,
                                 content_type: CONTENT_TYPE_FOR_EXT[File.extname(fname)],
                                 label: my_lockid)
-          rescue Faraday::ConnectionFailed, Octokit::UnprocessableEntity
-          rescue Octokit::ClientError
-            # Wait longer due to abuse detection
+          rescue Faraday::ConnectionFailed, Octokit::UnprocessableEntity => ex
+          rescue Octokit::ClientError => ex
+            $stderr.print "Wait for longer due to abuse detection: #{ex.inspect}"
             sleep 75
           end
         end
